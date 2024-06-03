@@ -5,6 +5,7 @@ resource "aws_instance" "isu_instance" {
   vpc_security_group_ids      = [aws_security_group.this.id]
   subnet_id                   = var.instance_subnet_id
   associate_public_ip_address = true
+  key_name                    = aws_key_pair.this.id
 
   tags = {
     Name = var.instance_name
@@ -33,4 +34,26 @@ resource "aws_security_group_rule" "egress_https" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.this.id
+}
+
+resource "aws_security_group_rule" "ec2_egress_ssh" {
+  type              = "egress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.this.id
+}
+
+resource "aws_security_group_rule" "ec2_ingress" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["${chomp(data.http.ipv4_icanhazip.response_body)}/32"]
+  security_group_id = aws_security_group.this.id
+}
+
+data "http" "ipv4_icanhazip" {
+  url = "https://ipv4.icanhazip.com/"
 }

@@ -26,3 +26,7 @@ variable "instance_subnet_id" {
   type        = string
   description = "subnet for EC2 instance"
 }
+
+variable "ssh_key_name" {
+  default = "ec2-keypair-v1"
+}
