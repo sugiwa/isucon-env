@@ -30,3 +30,7 @@ variable "instance_subnet_id" {
 variable "ssh_key_name" {
   default = "ec2-keypair-v1"
 }
+
+variable "setup_script" {
+  default = ""
+}

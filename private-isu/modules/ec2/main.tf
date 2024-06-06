@@ -7,6 +7,21 @@ resource "aws_instance" "isu_instance" {
   associate_public_ip_address = true
   key_name                    = aws_key_pair.this.id
 
+  provisioner "remote-exec" {
+    script = var.setup_script
+
+  }
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    host        = self.public_dns
+    private_key = tls_private_key.ssh_private_key.private_key_pem
+  }
+
+  root_block_device {
+    volume_size           = 16
+    delete_on_termination = true
+  }
   tags = {
     Name = var.instance_name
   }
@@ -49,6 +64,15 @@ resource "aws_security_group_rule" "ec2_ingress" {
   type              = "ingress"
   from_port         = 22
   to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["${chomp(data.http.ipv4_icanhazip.response_body)}/32"]
+  security_group_id = aws_security_group.this.id
+}
+
+resource "aws_security_group_rule" "ec2_ingress_https" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
   protocol          = "tcp"
   cidr_blocks       = ["${chomp(data.http.ipv4_icanhazip.response_body)}/32"]
   security_group_id = aws_security_group.this.id
