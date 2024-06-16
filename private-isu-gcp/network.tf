@@ -28,7 +28,7 @@ resource "google_compute_firewall" "ssh" {
 resource "google_compute_firewall" "app" {
   name = "allow-app"
   allow {
-    ports    = ["8080"]
+    ports    = ["8080", "80"]
     protocol = "tcp"
   }
 
